@@ -1,0 +1,10 @@
+// ฟังก์ชั่นจัดการ Error ทั้งหมดของ API
+function errorHandler(err, req, res, next) {
+  console.error(err);
+  res.status(500).json({
+    status: 'error',
+    message: err.message || 'Internal Server Error'
+  });
+}
+
+module.exports = errorHandler;
