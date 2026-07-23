@@ -1,8 +1,16 @@
 
 -- คำสั่งลบฐานข้อมูลผู้ใช้ ก่อนสร้างฐานข้อมูลใหม่
+DROP TABLE cart_items;
 DROP TABLE carts;
+DROP TABLE refresh_tokens;
+DROP TABLE order_items;
+DROP TABLE orders;
 DROP TABLE users;
 DROP TABLE products;
+
+TRUNCATE TABLE carts;
+TRUNCATE TABLE users;
+TRUNCATE TABLE products;
 
 
 
@@ -89,19 +97,22 @@ CREATE TABLE cart_items (
   UNIQUE (cardId, productId) -- สินค้าเดียวกันซ้ำใน cart ไม่ได้ ถ้าเพิ่มอีกให้ update quantity แทน
 );
 
+
+/*
+  status สถานะคำสั่งซื้อ
+  1.pending = กดสั่งแล้วรอชำระเงิน
+  2.paid = ชำระเงินแล้ว
+  3.packing = รอจัดของ
+  4.shipped = ส่งเรียบร้อย
+  5.complete = เสร็จสิ้น
+*/
+CREATE TYPE order_status AS ENUM('รอชำระเงิน', 'ชำระเงินแล้ว', 'รอจัดของ', 'ส่งเรียบร้อย', 'เสร็จสิ้น');
+
 -- รายการคำสั่งซื้อของผู้ใช้ (กดสั่งแล้ว)
 CREATE TABLE orders (
   id SERIAL PRIMARY KEY,
   userId INT NOT NULL REFERENCES users(id) ON DELETE CASCADE,
-  status VARCHAR(20) NOT NULL DEFAULT 'pending',
-  /*
-    status สถานะคำสั่งซื้อ
-    1.pending = กดสั่งแล้วรอชำระเงิน
-    2.paid = ชำระเงินแล้ว
-    3.packing = รอ
-    4.shipped = ส่งเรียบร้อย
-    5.complete = เสร็จสิ้น
-  */
+  status order_status NOT NULL DEFAULT 'รอชำระเงิน',
   totalPrice NUMERIC(10, 2) NOT NULL,
   createdAt TIMESTAMP DEFAULT NOW()
 );
