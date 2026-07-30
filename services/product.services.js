@@ -19,10 +19,15 @@ async function getProductById(id) {
 }
 
 // ดึงตะกร้าสินค้าตามไอดีผู้ใช้
-
 async function getCarts(id) {
-  const result = await pool.query('SELECT * FROM carts WHERE carts.userid = $1', [id]);
+  const result = await pool.query('SELECT carts.id, carts.userid, products.id AS product_id, products.name, cart_items.quantity, products.price, carts.createdat FROM carts JOIN cart_items ON cart_items.cardid = carts.id JOIN products ON products.id = cart_items.productid WHERE carts.userid = $1', [id]);
   return result.rows;
 }
 
-module.exports = { products, getProductById, getCarts };
+// ดึงจำนวนตะกร้าสินค้าตามไอดีผู้ใช้
+async function countCarts(id) {
+  const result = await pool.query('SELECT COUNT(*) FROM carts WHERE carts.userid = $1', [id]);
+  return result.rows;
+}
+
+module.exports = { products, getProductById, getCarts, countCarts };

@@ -76,7 +76,7 @@ INSERT INTO products ("name", "quantity", "price") VALUES
 
 TRUNCATE TABLE carts;
 
--- รายการตะกร้าของผู้ใช้  ชั่วคราว
+-- รายการตะกร้าของผู้ใช้
 CREATE TABLE carts (
   id SERIAL PRIMARY KEY,
   userId INT NOT NULL REFERENCES users(id) ON DELETE CASCADE,
@@ -87,7 +87,7 @@ INSERT INTO carts (userId) VALUES (1);
 
 
 
--- รายการสินค้าในตะกร้าของผู้ใช้  ชั่วคราว
+-- รายการสินค้าในตะกร้าของผู้ใช้
 CREATE TABLE cart_items (
   id SERIAL PRIMARY KEY,
   cardId INT NOT NULL REFERENCES carts(id) ON DELETE CASCADE,
@@ -96,6 +96,13 @@ CREATE TABLE cart_items (
   createdAt TIMESTAMP DEFAULT NOW(),
   UNIQUE (cardId, productId) -- สินค้าเดียวกันซ้ำใน cart ไม่ได้ ถ้าเพิ่มอีกให้ update quantity แทน
 );
+
+-- ทดลองเพิ่มสินค้าในตะกร้า
+INSERT INTO cart_items ("cardid", "productid", "quantity") VALUES (4, 3, 4);
+INSERT INTO cart_items ("cardid", "productid", "quantity") VALUES (4, 2, 1);
+
+INSERT INTO cart_items ("cardid", "productid", "quantity") VALUES (5, 2, 1);
+
 
 
 /*

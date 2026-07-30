@@ -57,4 +57,26 @@ async function getCarts(req, res, next) {
   } 
 }
 
-module.exports = { getProducts, getProductById, getCarts };
+async function countCarts(req, res, next) {
+  const { id } = req.params;
+
+  try {
+    const result = await productService.countCarts(id);
+    if (result === 0) {
+      res.status(400).json({
+        status: 'failed',
+        message: 'Cart not found!',
+        data: []
+      });
+    }
+    res.status(200).json({
+      status: 'success',
+      message: 'Get carts successfully!',
+      data: result
+    });
+  } catch (error) {
+    next(error);
+  } 
+}
+
+module.exports = { getProducts, getProductById, getCarts, countCarts };

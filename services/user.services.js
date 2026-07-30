@@ -4,7 +4,7 @@ const pool = require('../config/db');
 // ฟังก์ชั่นจัดการเข้าสู่ระบบ
 async function login(username, password) {
   // เช็คบัญชีที่มาจาก request ว่ามีอยู่จริงหรือไม่
-  const result = await pool.query('select "id", "accname", "password" from users where users."accname" = $1', [username]);
+  const result = await pool.query('select "id", "name", "password" from users where users."accname" = $1', [username]);
 
   if (result.rows.length > 0) {
     const user = result.rows[0];
@@ -12,7 +12,7 @@ async function login(username, password) {
     // เช็ครหัสผ่าน ใช้ bcrypt
     const isPasswordValid = await bcrypt.compare(password, user.password);
     if (isPasswordValid) {
-      return { code: 200, status: 'success', message: 'Login success', data: { userId: user.id }};
+      return { code: 200, status: 'success', message: 'Login success', data: { userId: user.id, name: user.name }};
     } else {
       return apiMsg(200, 'failed', 'Invalid password');
     }
@@ -36,8 +36,8 @@ async function register(userDto) {
 
   if (existingUser.rowCount === 0) {
     const result = await pool.query(
-      'insert into users ("name", "accname", "password", "startdate", "createddate", "createdtime") VALUES ($1, $2, $3, $4, $5, $6)',
-      [name, accname, hashedPassword, startdate, formattedDate, formattedTime]
+      'insert into users ("name", "accname", "password", "startdate", "createddate", "createdtime", "role") VALUES ($1, $2, $3, $4, $5, $6, $7)',
+      [name, accname, hashedPassword, startdate, formattedDate, formattedTime, "Customer"]
     );
     if (!result) {
       return apiMsg(500, 'failed', 'Failed to register user');
