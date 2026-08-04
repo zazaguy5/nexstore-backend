@@ -1,17 +1,11 @@
 
 -- คำสั่งลบฐานข้อมูลผู้ใช้ ก่อนสร้างฐานข้อมูลใหม่
-DROP TABLE cart_items;
 DROP TABLE carts;
-DROP TABLE refresh_tokens;
-DROP TABLE order_items;
-DROP TABLE orders;
-DROP TABLE users;
-DROP TABLE products;
+DROP TABLE cart_items;
 
 TRUNCATE TABLE carts;
-TRUNCATE TABLE users;
-TRUNCATE TABLE products;
 
+ALTER SEQUENCE users_id_seq RESTART WITH 6;
 
 
 CREATE TYPE user_role AS ENUM('Customer', 'Admin', 'Employee');
@@ -74,8 +68,6 @@ INSERT INTO products ("name", "quantity", "price") VALUES
 
 
 
-TRUNCATE TABLE carts;
-
 -- รายการตะกร้าของผู้ใช้
 CREATE TABLE carts (
   id SERIAL PRIMARY KEY,
@@ -98,10 +90,10 @@ CREATE TABLE cart_items (
 );
 
 -- ทดลองเพิ่มสินค้าในตะกร้า
-INSERT INTO cart_items ("cardid", "productid", "quantity") VALUES (4, 3, 4);
-INSERT INTO cart_items ("cardid", "productid", "quantity") VALUES (4, 2, 1);
+INSERT INTO cart_items ("cardid", "productid", "quantity") VALUES (1, 3, 4);
+INSERT INTO cart_items ("cardid", "productid", "quantity") VALUES (1, 2, 1);
 
-INSERT INTO cart_items ("cardid", "productid", "quantity") VALUES (5, 2, 1);
+INSERT INTO cart_items ("cardid", "productid", "quantity") VALUES (2, 2, 1);
 
 
 
@@ -133,3 +125,24 @@ CREATE TABLE order_items (
   priceAtOrder NUMERIC(10, 2) NOT NULL, -- อิงราคาตอนสั่งของ เผื่อราคาเพิ่มขึ้นตอนลูกค้าสั่งไปแล้ว เผื่่อส่วนลดต่างๆ
   quantity INT NOT NULL CHECK (quantity > 0)
 );
+
+
+
+-- ฐานข้อมูล OTP ใช้ทำเปลี่ยนรหัสผ่านกับยืนยันตัวตนเวลาสมัครบัญชีใหม่
+CREATE TABLE otp (
+  id SERIAL PRIMARY KEY,
+  otp VARCHAR(6) NOT NULL,
+  email TEXT,
+  number VARCHAR(10),
+  is_used BOOLEAN NOT NULL DEFAULT FALSE,
+  attempts INT NOT NULL DEFAULT 0,
+  created_at TIMESTAMP NOT NULL DEFAULT NOW(),
+  expires_at  TIMESTAMP NOT NULL
+);
+
+-- สร้าง index แยกเพื่อไว้ค้นหา email และ number ตอน verify
+CREATE INDEX idx_otp_email ON otp(email);
+CREATE INDEX idx_otp_number ON otp(number);
+
+-- ทดลองสร้าง otp
+INSERT INTO otp ("otp", "email") VALUES ('123456', 'test@h.com') RETURNING id;

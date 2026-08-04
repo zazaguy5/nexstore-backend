@@ -26,4 +26,29 @@ async function register(req, res, next) {
   }
 }
 
-module.exports = { login, register };
+async function getOTP(req, res, next) {
+  try {
+    const result = await userService.getOTP(req.body);
+    res.status(result.code).json({
+      status: result.status,
+      message: result.message,
+      data: result.data ?? null
+    });
+  } catch (error) {
+    next(error);
+  }
+}
+
+async function verifyOTP(req, res, next) {
+  try {
+    const result = await userService.verifyOTP(req.body);
+    res.status(result.code).json({
+      status: result.status,
+      message: result.message
+    });
+  } catch (error) {
+    next(error);
+  }
+}
+
+module.exports = { login, register, getOTP, verifyOTP };
